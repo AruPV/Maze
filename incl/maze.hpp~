@@ -1,0 +1,54 @@
+#ifndef MAZE_CPP
+#define MAZE_CPP
+#include <ranges>
+#include <algorithm>
+#include <random>
+#include <array> 
+#include "cell.hpp"
+
+template<int row_s, int col_s>
+class Maze {
+	private:
+		Position start;
+		Position goal;
+		Cell* grid[col_s][row_s];
+	public:
+		Maze
+			(Position 	start_pos 			= Position(0,0)
+			,Position 	goal_pos 			= Position(9,9)
+			,bool		debug				= false
+			,float		blocked_proportion	= 0.2
+			)
+			:start (start_pos)
+			,goal  (goal_pos){
+
+			std::vector<Cell> options;
+
+			for (int col: std::views::iota(0, int(col_s))){
+				for (int row: std::views::iota(0, int(row_s))){
+
+					bool is_start = (row == start.row && col == start.col);
+					bool is_end	  = (row == goal.row  && col == goal.col);
+					
+					if (is_start) {*grid[col][row] = Cell(start, Contents::START);} 
+					else if (is_end) {*grid[col][row] = Cell(goal, Contents::GOAL);} 
+					else{
+						Cell new_cell = Cell(Position(row,col),Contents::EMPTY);
+						options.push_back(new_cell);
+						grid[row][col] = new_cell;
+					}
+				}
+			}
+		}
+
+		std::string toString(){
+			std::string maze_str = "";
+			for (int col_i: std::views::iota(0,int(col_s))){
+				maze_str.append("a");
+			}
+			return maze_str;
+		}
+};
+
+
+#endif
