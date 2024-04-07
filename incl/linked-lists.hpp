@@ -31,6 +31,7 @@ class LinkedList{
 		int      getSize(){return size;}
 		Node<T>* getHead(){return head;}
 		Node<T>* getTail(){return tail;}
+		bool     isEmpty(){return (size == 0);}
 		
 		void addLeft(T value){
 			Node<T>* new_node = new Node<T>(value);

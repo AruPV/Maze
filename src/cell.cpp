@@ -1,8 +1,13 @@
 #include "../incl/cell.hpp"
 #include <string>
 
-Cell::Cell(Position pos, Contents contents):
-	position 	{pos}, 
+Cell::Cell(Position position, Contents contents):
+	position 	{position}, 
+	contents 	{contents},
+	parent 		{nullptr}{}
+
+Cell::Cell(Contents contents):
+	position 	{-1,-1}, 
 	contents 	{contents},
 	parent 		{nullptr}{}
 

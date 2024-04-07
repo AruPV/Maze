@@ -24,7 +24,8 @@ class Cell{
 		Cell* 		parent;
 
 	public:
-		Cell(Position pos, Contents contents);
+		Cell(Contents contents);
+		Cell(Position position, Contents contents);
 		Cell();
 
 		Position getPosition();	

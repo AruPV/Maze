@@ -26,7 +26,7 @@ enable_testing()
 
 add_executable(
 	tests
-	incl/maze.hpp
+	src/maze.cpp
 	src/cell.cpp
 	test/gtest.cpp
 )

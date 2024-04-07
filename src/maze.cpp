@@ -1,22 +1,30 @@
+#include <ranges>
+#include <algorithm>
+#include <random>
+#include <array> 
+#include <iostream>
+#include "../incl/queue.hpp"
+#include "../incl/stack.hpp"
 #include "../incl/maze.hpp"
+
 Maze::Maze
-		(Position 	start_pos
-		,Position 	goal_pos
-		,size_t		rows
-		,size_t		cols
-		,bool		debug
-		,float		blocked_proportion
+		(Position start_pos
+		,Position goal_pos
+		,size_t	  rows
+		,size_t	  cols
+		,bool     debug
+		,float    blocked_proportion
 		)
 		:start (start_pos)
 		,goal  (goal_pos)
-		,rows (rows)
-		,cols (cols){
+		,rows  (rows)
+		,cols  (cols){
 
 		int blocked_count = floor(rows*cols*blocked_proportion);
-		int start_i = start_pos.row * cols + start_pos.col;
-		int goal_i = goal_pos.row * cols + goal_pos.col;
-		
 		int variable_cell_count = (rows*cols)-2;
+
+		int start_i = start_pos.row * cols + start_pos.col;
+		int goal_i  = goal_pos.row  * cols + goal_pos.col;
 
 		//Add all non-start or end cells
 		for (int i: std::views::iota(0, (variable_cell_count-1))){
@@ -25,34 +33,108 @@ Maze::Maze
 				: Contents::EMPTY;
 			int cur_row = i%(cols-1);
 			int cur_col = i-(cols*cur_row);
-			grid.push_back(Cell(Position(cur_row,cur_col), cell_contents));
+			grid.push_back(Cell(cell_contents));
 		}
 
-		// Non-deterministic random device
-		std::random_device 	rd;
+		// Non-deterministic random device for seed
+		std::random_device rd;
 		// Merssene Twister from algorithm library. Feed the 
-		// non-deterministic device as parameter.
-		std::mt19937 		rng(rd());	
+		// non-deterministic device as seed.
+		std::mt19937 rng(rd());	
+		if (debug){
+			rng = std::mt19937(1312);	
+		}
 		// Shuffle maze
 		std::shuffle(std::begin(grid), std::end(grid), rng);
 		
-		// Add start and goal. Relatively expensive when done this way but 
-		// it is only done once.
+		// Add start and goal.
 		if (start_i < goal_i){
-			grid.insert(grid.begin()+ start_i, Cell(start_pos,Contents::START));
-			grid.insert(grid.begin()+ goal_i, Cell(goal_pos,Contents::GOAL));
+			grid.insert(grid.begin()+start_i, Cell(Contents::START));
+			grid.insert(grid.begin()+goal_i , Cell(Contents::GOAL));
 		} else {
-			grid.insert(grid.begin()+ goal_i, Cell(goal_pos,Contents::GOAL));
-			grid.insert(grid.begin()+ start_i, Cell(start_pos,Contents::START));
+			grid.insert(grid.begin()+goal_i , Cell(Contents::GOAL));
+			grid.insert(grid.begin()+start_i, Cell(Contents::START));
 		}
 
+		// Initialize positions
+		for (int row_i: std::views::iota(0, int(rows)-1)){
+			for (int col_i: std::views::iota(0, int(cols)-1)){
+				grid[(row_i*col_i)+col_i].setPosition(row_i,col_i);
+			}
+		}
 	}
+
 
 Cell& Maze::getCell(int row, int col){
 	return grid[(row*cols)+col];
 }
 
+
+size_t Maze::getRows(){return rows;}
+size_t Maze::getCols(){return cols;}
+size_t Maze::getSize(){return (cols*rows);}
+
+std::vector<Cell*>   Maze::getSearchLocations(Cell cell){
+
+	std::vector<Cell*> valid_cells;
+
+	//None of these can be references because they're rvalues.
+	Position cur_pos   = cell.getPosition();
+	std::cout << "Start Position: " << cur_pos.row << "," << cur_pos.col << "\n";
+	Position north_pos = Position(cur_pos.row  , cur_pos.col-1);
+	Position south_pos = Position(cur_pos.row  , cur_pos.col+1);
+	Position west_pos  = Position(cur_pos.row-1, cur_pos.col);
+	Position east_pos  = Position(cur_pos.row+1, cur_pos.col);
+
+	//std::array is a pointer + size. Worth the small memory cost.
+	std::array<Position, 4> directions;		
+	directions[0] = north_pos;
+	directions[1] = south_pos;
+	directions[2] = west_pos;
+	directions[3] = east_pos;
+
+	for (Position pos: directions){
+		if (pos.col < 0 || pos.row < 0){continue;}
+		std::cout << "Current Position:" << pos.row << "," << pos.col << "\n";
+		Cell* cur_cell  = &this->getCell(pos.row, pos.col);
+		bool is_path    = cur_cell->getContents() == Contents::PATH; 
+		bool is_blocked = cur_cell->getContents() == Contents::BLOCKED; 
+		std::cout << "is_blocked:" << is_blocked << ". is_path:" << is_path << "\n";
+		if (is_blocked || is_path){continue;}
+		cur_cell->markOnPath();
+		std::cout << cur_cell->getPosition().row << "," << cur_cell->getPosition().col << "\n";
+		valid_cells.push_back(cur_cell);	
+	}
+
+	return valid_cells;
+}
+
+
+std::optional<Cell*> Maze::dfs(){
+	std::optional<Cell*> return_value;
+	Stack<Cell*>        search_stack;
+	Cell*               cur_cell  = &this->getCell(start.row, start.col);
+	Cell*               goal_cell = &this->getCell(goal.row, goal.col);
+
+	while (cur_cell != goal_cell){
+		std::vector<Cell*> valid_locations = this->getSearchLocations(*cur_cell);
+
+		for (Cell* cell: valid_locations){
+			search_stack.push(cell);
+			cell->setParent(cur_cell);
+		}
+		if (search_stack.isEmpty()){break;}
+		cur_cell = search_stack.pop();
+	}
+	if (cur_cell == goal_cell){return_value = cur_cell;}
+	return return_value;
+}
+
+
+//std::optional<Cell> Maze::bfs(){}
+
 std::string Maze::toString(){
+	std::cout << "in string";
 	std::string return_str; 
 	for (int row_i = 0; row_i < rows; row_i++){
 		return_str.append("|");
