@@ -31,8 +31,6 @@ Maze::Maze
 			Contents cell_contents = (i < blocked_count-1)
 				? Contents::BLOCKED
 				: Contents::EMPTY;
-			int cur_row = i%(cols-1);
-			int cur_col = i-(cols*cur_row);
 			grid.push_back(Cell(cell_contents));
 		}
 
@@ -59,7 +57,7 @@ Maze::Maze
 		// Initialize positions
 		for (int row_i: std::views::iota(0, int(rows)-1)){
 			for (int col_i: std::views::iota(0, int(cols)-1)){
-				grid[(row_i*col_i)+col_i].setPosition(row_i,col_i);
+				grid[(row_i*cols)+col_i].setPosition(row_i,col_i);
 			}
 		}
 	}
@@ -74,13 +72,13 @@ size_t Maze::getRows(){return rows;}
 size_t Maze::getCols(){return cols;}
 size_t Maze::getSize(){return (cols*rows);}
 
-std::vector<Cell*>   Maze::getSearchLocations(Cell cell){
+void Maze::pushSearchLocations(Cell* cell, Stack<Cell*>& search_stack){
 
 	std::vector<Cell*> valid_cells;
 
 	//None of these can be references because they're rvalues.
-	Position cur_pos   = cell.getPosition();
-	std::cout << "Start Position: " << cur_pos.row << "," << cur_pos.col << "\n";
+	Position cur_pos   = cell->getPosition();
+	//std::cout << "Start Position: " << cur_pos.row << "," << cur_pos.col << "\n";
 	Position north_pos = Position(cur_pos.row  , cur_pos.col-1);
 	Position south_pos = Position(cur_pos.row  , cur_pos.col+1);
 	Position west_pos  = Position(cur_pos.row-1, cur_pos.col);
@@ -95,18 +93,22 @@ std::vector<Cell*>   Maze::getSearchLocations(Cell cell){
 
 	for (Position pos: directions){
 		if (pos.col < 0 || pos.row < 0){continue;}
-		std::cout << "Current Position:" << pos.row << "," << pos.col << "\n";
 		Cell* cur_cell  = &this->getCell(pos.row, pos.col);
+		std::cout 
+			<< "Current Position:" 
+			<< cur_cell->getPosition().row 
+			<< "," 
+			<< cur_cell->getPosition().col << "\n";
 		bool is_path    = cur_cell->getContents() == Contents::PATH; 
 		bool is_blocked = cur_cell->getContents() == Contents::BLOCKED; 
-		std::cout << "is_blocked:" << is_blocked << ". is_path:" << is_path << "\n";
+		//std::cout << "is_blocked:" << is_blocked << ". is_path:" << is_path << "\n";
 		if (is_blocked || is_path){continue;}
 		cur_cell->markOnPath();
+		cur_cell->setParent(cell);
 		std::cout << cur_cell->getPosition().row << "," << cur_cell->getPosition().col << "\n";
-		valid_cells.push_back(cur_cell);	
+		search_stack.push(cur_cell);	
 	}
-
-	return valid_cells;
+		std::cout << "test";
 }
 
 
@@ -117,13 +119,11 @@ std::optional<Cell*> Maze::dfs(){
 	Cell*               goal_cell = &this->getCell(goal.row, goal.col);
 
 	while (cur_cell != goal_cell){
-		std::vector<Cell*> valid_locations = this->getSearchLocations(*cur_cell);
-
-		for (Cell* cell: valid_locations){
-			search_stack.push(cell);
-			cell->setParent(cur_cell);
-		}
+		std::cout << search_stack.toString() << "\n";
+		this->pushSearchLocations(cur_cell, search_stack);
+		std::cout << "test";
 		if (search_stack.isEmpty()){break;}
+		std::cout << "test";
 		cur_cell = search_stack.pop();
 	}
 	if (cur_cell == goal_cell){return_value = cur_cell;}

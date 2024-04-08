@@ -3,6 +3,7 @@
 #include <vector>
 #include <optional>
 #include "cell.hpp"
+#include "stack.hpp"
 
 class Maze {
 	private:
@@ -16,7 +17,7 @@ class Maze {
 		size_t cols;
 
 		// Have to make these pointers because a vector can't take references
-		std::vector<Cell*> getSearchLocations(Cell cell);
+		void pushSearchLocations(Cell* cell, Stack<Cell*>& search_stack);
 
 	public:
 

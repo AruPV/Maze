@@ -54,8 +54,29 @@ TEST_F(CellTest, path_cell){
 	EXPECT_EQ(path_cell.toString(), "*");
 }
 
-TEST_F(MazeTest, default_maze){
+TEST_F(MazeTest, check_all_initialized){
+	for (int i: std::views::iota(0, 99)){
+		int cur_row = i%9;
+		int cur_col = i-(cur_row*9);
+		EXPECT_NE(default_maze.getCell(cur_row, cur_col).getContents(), Contents::UNINT);
+	}
+}
+
+TEST_F(MazeTest, string_rep){
 	EXPECT_EQ(default_maze.toString(), "| S |   |   |   |   | x |   |   |   |   |\n|   |   |   | x |   | x |   |   |   |   |\n|   |   |   | x |   |   |   |   |   |   |\n|   |   |   |   |   | x |   |   |   |   |\n| x |   | x |   |   |   |   |   | x |   |\n|   |   |   |   |   |   |   |   |   | x |\n|   |   |   |   | x | x |   | x |   |   |\n|   |   |   |   |   |   |   | x | x |   |\n|   | x |   |   |   | x |   |   |   | x |\n|   |   | x |   | x |   |   |   |   | G |");
+
+	// Maze should print like this:
+	//
+	//| S |   |   |   |   | x |   |   |   |   |
+	//|   |   |   | x |   | x |   |   |   |   |
+	//|   |   |   | x |   |   |   |   |   |   |
+	//|   |   |   |   |   | x |   |   |   |   |
+	//| x |   | x |   |   |   |   |   | x |   |
+	//|   |   |   |   |   |   |   |   |   | x |
+	//|   |   |   |   | x | x |   | x |   |   |
+	//|   |   |   |   |   |   |   | x | x |   |
+	//|   | x |   |   |   | x |   |   |   | x |
+	//|   |   | x |   | x |   |   |   |   | G |
 }
 
 TEST_F(MazeTest, get_search_locations){
@@ -64,13 +85,13 @@ TEST_F(MazeTest, get_search_locations){
 }
 
 TEST_F(MazeTest, check_all_positions){
-	for (int i: std::views::iota(0, 99)){
-		int cur_row = i%9;
-		int cur_col = i-(cur_row*9);
-		Position cell_pos = default_maze.getCell(cur_row, cur_col).getPosition(); 
-		Position expected_pos = Position(cur_row,cur_col);
-		EXPECT_EQ(cell_pos.row,expected_pos.row);
-		EXPECT_EQ(cell_pos.col,expected_pos.col);
+	for (int cur_row: std::views::iota(0, 9)){
+		for (int cur_col: std::views::iota(0, 9)){
+			Position cell_pos = default_maze.getCell(cur_row, cur_col).getPosition(); 
+			Position expected_pos = Position(cur_row,cur_col);
+			EXPECT_EQ(cell_pos.row,expected_pos.row);
+			EXPECT_EQ(cell_pos.col,expected_pos.col);
+		}
 	}
 }
 
