@@ -7,17 +7,22 @@
 
 class CellTest : public testing::Test {
 	protected:
-		Cell empty_cell = Cell(Position(0,0), Contents::EMPTY) ;
-		Cell start_cell = Cell(Position(0,0), Contents::START) ;
-		Cell goal_cell = Cell(Position(0,0), Contents::GOAL) ;
-		Cell blocked_cell = Cell(Position(0,0), Contents::BLOCKED) ;
-		Cell path_cell = Cell(Position(0,0), Contents::PATH) ;
+		Cell empty_cell   = Cell(Position(0,0), Contents::EMPTY);
+		Cell start_cell   = Cell(Position(0,0), Contents::START);
+		Cell goal_cell    = Cell(Position(0,0), Contents::GOAL);
+		Cell blocked_cell = Cell(Position(0,0), Contents::BLOCKED);
+		Cell path_cell    = Cell(Position(0,0), Contents::PATH);
 };
 
 class MazeTest : public testing::Test {
 	protected:
-		Maze default_maze = Maze(Position(0,0), Position(9,9), 10, 10, true, 0.2);
+		Maze default_maze = Maze(Position(0,0), Position(9,9),  10,  10, true, 0.2);
+		Maze two_two_maze = Maze(Position(0,0), Position(1,1),   2,   2, true, 0.2);
+		Maze one_two_maze = Maze(Position(0,0), Position(0,1),   1,   2, 1313, 0.2);
 };
+
+
+//					****** CELL TESTS ******
 
 TEST_F(CellTest, empty_cell){
 	EXPECT_EQ(empty_cell.getContents(), Contents::EMPTY);
@@ -54,39 +59,49 @@ TEST_F(CellTest, path_cell){
 	EXPECT_EQ(path_cell.toString(), "*");
 }
 
-TEST_F(MazeTest, check_all_initialized){
-	for (int i: std::views::iota(0, 99)){
-		int cur_row = i%9;
-		int cur_col = i-(cur_row*9);
-		EXPECT_NE(default_maze.getCell(cur_row, cur_col).getContents(), Contents::UNINT);
+//					****** MAZE TESTS ******
+// --- Default Maze
+
+TEST_F(MazeTest, check_maze_initialized){
+	EXPECT_EQ(default_maze.getSize(),100);
+}
+
+TEST_F(MazeTest, check_all_initialized_on_default_maze){
+	for (int row_i: std::views::iota(0, 10)){
+		for (int col_i: std::views::iota(0, 10)){
+			EXPECT_NE(default_maze.getCell(row_i, col_i).getContents(), Contents::UNINT);
+		}
 	}
 }
 
-TEST_F(MazeTest, string_rep){
-	EXPECT_EQ(default_maze.toString(), "| S |   |   |   |   | x |   |   |   |   |\n|   |   |   | x |   | x |   |   |   |   |\n|   |   |   | x |   |   |   |   |   |   |\n|   |   |   |   |   | x |   |   |   |   |\n| x |   | x |   |   |   |   |   | x |   |\n|   |   |   |   |   |   |   |   |   | x |\n|   |   |   |   | x | x |   | x |   |   |\n|   |   |   |   |   |   |   | x | x |   |\n|   | x |   |   |   | x |   |   |   | x |\n|   |   | x |   | x |   |   |   |   | G |");
+TEST_F(MazeTest, string_rep_on_default_maze){
+	EXPECT_EQ(default_maze.toString(), "| S |   |   |   |   |   | x | x |   |   |\n|   |   | x |   |   | x |   | x |   |   |\n|   |   |   |   | x |   |   |   |   |   |\n|   |   |   |   |   |   |   |   |   |   |\n|   |   |   |   |   |   | x |   | x |   |\n|   | x |   |   | x | x |   |   |   |   |\n|   |   |   |   | x |   | x |   |   |   |\n|   |   | x |   |   |   |   | x |   |   |\n|   |   |   |   |   |   |   |   | x |   |\n| x |   |   |   | x |   | x | x |   | G |");
+
+
 
 	// Maze should print like this:
 	//
-	//| S |   |   |   |   | x |   |   |   |   |
-	//|   |   |   | x |   | x |   |   |   |   |
-	//|   |   |   | x |   |   |   |   |   |   |
-	//|   |   |   |   |   | x |   |   |   |   |
-	//| x |   | x |   |   |   |   |   | x |   |
-	//|   |   |   |   |   |   |   |   |   | x |
-	//|   |   |   |   | x | x |   | x |   |   |
-	//|   |   |   |   |   |   |   | x | x |   |
-	//|   | x |   |   |   | x |   |   |   | x |
-	//|   |   | x |   | x |   |   |   |   | G |
+	//| S |   |   |   |   |   | x | x |   |   |
+	//|   |   | x |   |   | x |   | x |   |   |
+	//|   |   |   |   | x |   |   |   |   |   |
+	//|   |   |   |   |   |   |   |   |   |   |
+	//|   |   |   |   |   |   | x |   | x |   |
+	//|   | x |   |   | x | x |   |   |   |   |
+	//|   |   |   |   | x |   | x |   |   |   |
+	//|   |   | x |   |   |   |   | x |   |   |
+	//|   |   |   |   |   |   |   |   | x |   |
+	//| x |   |   |   | x |   | x | x |   | G |
+
 }
 
-TEST_F(MazeTest, get_search_locations){
+TEST_F(MazeTest, get_search_locations_on_default_maze){
 	EXPECT_EQ(default_maze.getCell(0, 0).getContents(), Contents::START );
 	EXPECT_EQ(default_maze.getCell(9, 9).getContents(), Contents::GOAL );
 }
 
-TEST_F(MazeTest, check_all_positions){
-	for (int cur_row: std::views::iota(0, 9)){
-		for (int cur_col: std::views::iota(0, 9)){
+TEST_F(MazeTest, check_all_positions_on_default_maze){
+	for (int cur_row: std::views::iota(0, 10)){
+		for (int cur_col: std::views::iota(0, 10)){
 			Position cell_pos = default_maze.getCell(cur_row, cur_col).getPosition(); 
 			Position expected_pos = Position(cur_row,cur_col);
 			EXPECT_EQ(cell_pos.row,expected_pos.row);
@@ -95,8 +110,129 @@ TEST_F(MazeTest, check_all_positions){
 	}
 }
 
-TEST_F(MazeTest, dfs){
+TEST_F(MazeTest, dfs_on_default_maze){
 	EXPECT_EQ(default_maze.dfs().has_value(), true);
-	//EXPECT_EQ(default_maze.dfs().value()->getParent()->isGoal(), true);
-	//EXPECT_EQ(default_maze.toString(), "| S |   |   |   |   | x |   |   |   |   |\n|   |   |   | x |   | x |   |   |   |   |\n|   |   |   | x |   |   |   |   |   |   |\n|   |   |   |   |   | x |   |   |   |   |\n| x |   | x |   |   |   |   |   | x |   |\n|   |   |   |   |   |   |   |   |   | x |\n|   |   |   |   | x | x |   | x |   |   |\n|   |   |   |   |   |   |   | x | x |   |\n|   | x |   |   |   | x |   |   |   | x |\n|   |   | x |   | x |   |   |   |   | G |");
+	EXPECT_EQ(default_maze.getCell(0,0).getParent(), nullptr);
+}
+
+TEST_F(MazeTest, check_dfs_path_on_default_maze){
+	EXPECT_EQ(default_maze.dfs().has_value(), true);
+	default_maze.showPath();
+	EXPECT_EQ(default_maze.toString(), "| S | * | * | * |   |   | x | x |   |   |\n|   |   | x | * |   | x |   | x |   |   |\n| * | * | * | * | x |   |   |   |   |   |\n| * |   |   |   |   | * | * | * | * | * |\n| * | * | * | * | * | * | x |   | x | * |\n|   | x |   |   | x | x |   |   | * | * |\n|   |   |   |   | x |   | x |   | * |   |\n|   |   | x |   |   |   |   | x | * | * |\n|   |   |   |   |   |   |   |   | x | * |\n| x |   |   |   | x |   | x | x |   | G |");
+
+	// Maze should print like this:
+	//
+	//| S | * | * | * |   |   | x | x |   |   |
+	//|   |   | x | * |   | x |   | x |   |   |
+	//| * | * | * | * | x |   |   |   |   |   |
+	//| * |   |   |   |   | * | * | * | * | * |
+	//| * | * | * | * | * | * | x |   | x | * |
+	//|   | x |   |   | x | x |   |   | * | * |
+	//|   |   |   |   | x |   | x |   | * |   |
+	//|   |   | x |   |   |   |   | x | * | * |
+	//|   |   |   |   |   |   |   |   | x | * |
+	//| x |   |   |   | x |   | x | x |   | G |
+
+	EXPECT_NE(default_maze.getCell(9,9).getParent(), nullptr);
+}
+
+TEST_F(MazeTest, bfs_on_default_maze){
+	EXPECT_EQ(default_maze.bfs().has_value(), true);
+	EXPECT_EQ(default_maze.getCell(0,0).getParent(), nullptr);
+}
+
+TEST_F(MazeTest, check_bfs_path_on_default_maze){
+	EXPECT_EQ(default_maze.bfs().has_value(), true);
+	default_maze.showPath();
+	EXPECT_EQ(default_maze.toString(), "| S |   |   |   |   |   | x | x |   |   |\n| * |   | x |   |   | x |   | x |   |   |\n| * |   |   |   | x |   |   |   |   |   |\n| * | * | * | * | * | * | * | * |   |   |\n|   |   |   |   |   |   | x | * | x |   |\n|   | x |   |   | x | x |   | * |   |   |\n|   |   |   |   | x |   | x | * | * |   |\n|   |   | x |   |   |   |   | x | * | * |\n|   |   |   |   |   |   |   |   | x | * |\n| x |   |   |   | x |   | x | x |   | G |");
+
+	// Maze should print like this:
+	//
+	//| S |   |   |   |   |   | x | x |   |   |
+	//| * |   | x |   |   | x |   | x |   |   |
+	//| * |   |   |   | x |   |   |   |   |   |
+	//| * | * | * | * | * | * | * | * |   |   |
+	//|   |   |   |   |   |   | x | * | x |   |
+	//|   | x |   |   | x | x |   | * |   |   |
+	//|   |   |   |   | x |   | x | * | * |   |
+	//|   |   | x |   |   |   |   | x | * | * |
+	//|   |   |   |   |   |   |   |   | x | * |
+	//| x |   |   |   | x |   | x | x |   | G |
+
+	EXPECT_NE(default_maze.getCell(9,9).getParent(), nullptr);
+}
+
+//Illegal mazes
+
+TEST_F (MazeTest, initialize_invalid_size_maze){
+	EXPECT_THROW(Maze(Position(0,0),Position(0,0), 1, 1, true, 0.2), std::invalid_argument);
+}
+
+TEST_F (MazeTest, start_and_end_same){
+	EXPECT_THROW(Maze(Position(0,0),Position(0,0), 2, 2, true, 0.2), std::invalid_argument);
+}
+
+TEST_F (MazeTest, start_row_outside_bounds){
+	EXPECT_THROW(Maze(Position(-1,0),Position(0,0), 2, 2, true, 0.2), std::invalid_argument);
+}
+
+TEST_F (MazeTest, start_col_outside_bounds){
+	EXPECT_THROW(Maze(Position(1,-1),Position(0,0), 2, 2, true, 0.2), std::invalid_argument);
+}
+
+TEST_F (MazeTest, goal_row_outside_bounds){
+	EXPECT_THROW(Maze(Position(0,0),Position(-1,0), 2, 2, true, 0.2), std::invalid_argument);
+}
+
+TEST_F (MazeTest, goal_col_outside_bounds){
+	EXPECT_THROW(Maze(Position(0,0),Position(0,-1), 2, 2, true, 0.2), std::invalid_argument);
+}
+
+// --- 1x2 Maze
+
+TEST_F(MazeTest, check_all_initialized_on_one_by_two_maze){
+	for (int row_i: std::views::iota(0, 1)){
+		for (int col_i: std::views::iota(0, 2)){
+			EXPECT_NE(one_two_maze.getCell(row_i, col_i).getContents(), Contents::UNINT);
+		}
+	}
+}
+
+TEST_F(MazeTest, string_rep_on_one_by_two_maze){
+	EXPECT_EQ(one_two_maze.toString(), "| S | G |");
+
+	// Maze should print like this:
+	//
+	//| S | G | 
+}
+
+TEST_F(MazeTest, get_search_locations_on_one_by_two_maze){
+	EXPECT_EQ(one_two_maze.getCell(0, 0).getContents(), Contents::START );
+	EXPECT_EQ(one_two_maze.getCell(0, 1).getContents(), Contents::GOAL );
+}
+
+TEST_F(MazeTest, check_all_positions_on_one_by_two_maze){
+	for (int cur_row: std::views::iota(0, 1)){
+		for (int cur_col: std::views::iota(0, 2)){
+			Position cell_pos = one_two_maze.getCell(cur_row, cur_col).getPosition(); 
+			Position expected_pos = Position(cur_row,cur_col);
+			EXPECT_EQ(cell_pos.row,expected_pos.row);
+			EXPECT_EQ(cell_pos.col,expected_pos.col);
+		}
+	}
+}
+
+TEST_F(MazeTest, dfs_on_one_by_two_maze){
+	EXPECT_EQ(one_two_maze.dfs().has_value(), true);
+	EXPECT_EQ(one_two_maze.getCell(0,0).getParent(), nullptr);
+}
+
+TEST_F(MazeTest, check_default_path_on_one_by_two_maze){
+	EXPECT_EQ(one_two_maze.dfs().has_value(), true);
+	one_two_maze.showPath();
+	EXPECT_EQ(one_two_maze.toString(), "| S | G |");
+
+	// Maze should print like this:
+	//
+	//| S | G | 
 }

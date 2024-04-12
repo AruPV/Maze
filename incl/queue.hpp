@@ -9,9 +9,9 @@ class Queue{
 
 	public:
 		void push(T element){list.addRight(element);}
-		T pop()             {return list.removeRight();}
+		T pop()             {return list.removeLeft();}
 		T& top()            {return list.getHead();}
-		bool is_empty()     {return list.isEmpty();}
+		bool isEmpty()      {return list.isEmpty();}
 		int size()          {return list.getSize();}
 
 };

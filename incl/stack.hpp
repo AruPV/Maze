@@ -2,6 +2,7 @@
 #define STACK_HPP
 #include <vector>
 #include <string>
+#include <ranges>
 #include "../incl/cell.hpp"
 
 template <typename T>
@@ -15,7 +16,7 @@ class Stack{
 		void   push(T element){data.push_back(element);}
 		T&     top()          {return data.top();}
 		T      pop()          {
-			T return_val = data.front();
+			T return_val = data.back();
 			data.pop_back();
 			return return_val;
 		}
@@ -49,7 +50,7 @@ class Stack<T*>{
 		void   push(T* element){data.push_back(element);}
 		T*&    top()           {return data.top();}
 		T*     pop()           {
-			T* return_val = data.front();
+			T* return_val = data.back();
 			data.pop_back();
 			return return_val;
 		}
@@ -60,7 +61,7 @@ class Stack<T*>{
 			std::string result = "---";
 			// Loop w iterators
 			for (auto it = data.end(); it != data.begin(); it++){
-				result += **it + "\n---\n";
+				result = result + "\n" + **it + "\n---";
 			}
 			return result;
 		}
@@ -73,11 +74,14 @@ class Stack<T*>{
 template<>
 inline std::string Stack<Cell*>::toString(){
 	if (this->isEmpty()){return "[EMPTY]";}
-	std::string result = "---";
-	// Loop w iterators
-	for (auto it = data.end(); it != data.begin(); it++){
-		result += (*it)->toString()+ "\n---\n";
+	std::string result = "+-----+\n";
+	for (int i= this->getSize()-1; i > -1; i--){
+		if (i<this->getSize()-1){ result = result + "---\n";}
+		result = result 
+			+ posToString((*data[i]).getPosition())
+			+ "\n";
 	}
+	result = result + "+-----+";
 	return result;
 }
 

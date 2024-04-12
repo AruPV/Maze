@@ -16,6 +16,8 @@ struct Position {
 	int col;
 };
 
+std::string posToString(Position pos);
+
 class Cell{
 
 	private:
@@ -38,12 +40,13 @@ class Cell{
 		bool isBlocked();
 		bool isGoal();
 
-		void setParent(Cell* new_parent);
+		void setParent(Cell& parent_cell);
 		void markOnPath();
 		void markAsBlocked();
 
 		std::string	toString();
 		bool operator==(Cell other);
+		int toInt();		//used for indexing in map
 };
 
 #endif
