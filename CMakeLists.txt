@@ -31,6 +31,13 @@ add_executable(
 	test/gtest.cpp
 )
 
+add_executable(
+	performance
+	src/maze.cpp
+	src/cell.cpp
+	src/main.cpp
+)
+
 target_link_libraries(
 	tests
 	GTest::gtest_main

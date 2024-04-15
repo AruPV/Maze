@@ -10,36 +10,42 @@
 class Maze {
 	private:
 
-		Position start;
-		Position goal;
-		//Using a vector because c-style arrays and std::arrays need to have a 
-		//set size at compile time
-		std::vector<Cell> grid;			
-		size_t rows;
-		size_t cols;
+		Position          start;
+		Position          goal;
+		std::vector<Cell> grid;		//Vector allows size definition at runtime.
+		size_t            rows;
+		size_t            cols;
+		bool              path_found = false;
+		int               path_length;
+		int               push_count;
+		
 
-		// Have to make these pointers because a vector can't take references
+		// The queues and stacks are pointer instantiated because vectors cannot
+		// be instantiated with references.
 		void pushSearchLocations(
 				Cell*                cell, 
 				Stack<Cell*>&        search_stack, 
 				std::map<int, bool>& searched_index
 		);
 
+		// Queue overload for BFS
 		void pushSearchLocations(
 				Cell*                cell, 
 				Queue<Cell*>&        search_queue, 
 				std::map<int, bool>& searched_index
 		);
 
+		void resetStats();
+
 	public:
 
 		Maze(
-			Position 	start_pos           = Position(0,0)
-			,Position 	goal_pos            = Position(9,9)
-			,size_t		rows                = 10
-			,size_t		cols                = 10
-			,int		debug_seed          = -1
-			,float		blocked_proportion  = 0.2
+			Position 	start_pos           = Position(0,0),
+			Position 	goal_pos            = Position(9,9),
+			size_t		rows                = 10,
+			size_t		cols                = 10,
+			int	        debug_seed          = -1,
+			float		blocked_proportion  = 0.2
 		);
 
 		void   showPath();

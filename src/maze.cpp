@@ -5,7 +5,6 @@
 #else
 #define DEBUG_MSG(str) do {} while(false)
 #endif
-#include <cassert>
 
 #include <ranges>
 #include <map>
@@ -145,15 +144,19 @@ void Maze::pushSearchLocations(
 		DEBUG_MSG("In directions loop for the position:"
 				+ posToString(directions[i]));
 		Position cur_pos = directions[i];
-		if (cur_pos.col < 0 || cur_pos.row < 0){continue;}
+		if (cur_pos.col < 0 || cur_pos.row < 0)                    {continue;}
 		if (cur_pos.col >= this->cols || cur_pos.row >= this->rows){continue;}
+
 		Cell* cur_cell  = &this->getCell(cur_pos.row, cur_pos.col);
 		bool is_searched = searched_index[(*cur_cell).toInt()]; 
 		bool is_blocked  = cur_cell->getContents() == Contents::BLOCKED; 
-		if (is_blocked || is_searched){continue;}
+
+		if (is_blocked || is_searched)                             {continue;}
+
 		searched_index[(*cur_cell).toInt()] = 1;
 		cur_cell->setParent(*cell);
 		search_stack.push(cur_cell);
+		this->push_count += 1;
 		DEBUG_MSG("    Pushed successfully");
 	}
 		DEBUG_MSG("Exited directions Loop");
@@ -192,18 +195,28 @@ void Maze::pushSearchLocations(
 		DEBUG_MSG("In directions loop for the position:"
 				+ posToString(directions[i]));
 		Position cur_pos = directions[i];
-		if (cur_pos.col < 0 || cur_pos.row < 0){continue;}
+		if (cur_pos.col < 0 || cur_pos.row < 0)                    {continue;}
 		if (cur_pos.col >= this->cols || cur_pos.row >= this->rows){continue;}
+
 		Cell* cur_cell  = &this->getCell(cur_pos.row, cur_pos.col);
 		bool is_searched = searched_index[(*cur_cell).toInt()]; 
 		bool is_blocked  = cur_cell->getContents() == Contents::BLOCKED; 
-		if (is_blocked || is_searched){continue;}
+
+		if (is_blocked || is_searched)                             {continue;}
+
 		searched_index[(*cur_cell).toInt()] = 1;
 		cur_cell->setParent(*cell);
 		search_queue.push(cur_cell);
-		DEBUG_MSG("Pushed successfully");
+		this->push_count += 1;
+		DEBUG_MSG("    Pushed successfully");
 	}
 		DEBUG_MSG("Exited directions Loop");
+}
+
+void Maze::resetStats(){
+	this->path_length = 0;
+	this->push_count  = 0;
+	this->path_found  = false;
 }
 
 std::optional<Cell*> Maze::dfs(){
@@ -217,6 +230,7 @@ std::optional<Cell*> Maze::dfs(){
 	Cell*                goal_cell = &this->getCell(goal.row , goal.col);
 	std::map<int, bool> searched_index;
 
+	this->resetStats();
 
 	while (cur_cell != goal_cell){
 		DEBUG_MSG("In DFS Loop");
@@ -224,7 +238,13 @@ std::optional<Cell*> Maze::dfs(){
 		if (search_stack.isEmpty()){break;}
 		cur_cell = search_stack.pop();
 	}
-	if (cur_cell == goal_cell){return_value = cur_cell;}
+
+	if (cur_cell == goal_cell){
+		return_value = cur_cell;
+		this->path_found = true;
+		this->showPath();
+	}
+
 	return return_value;
 }
 
@@ -239,19 +259,23 @@ std::optional<Cell*> Maze::bfs(){
 	Cell*                goal_cell = &this->getCell(goal.row , goal.col);
 	std::map<int, bool> searched_index;
 
+	this->resetStats();
+
 	while (cur_cell != goal_cell){
 		DEBUG_MSG("In DFS Loop");
 		this->pushSearchLocations(cur_cell, search_queue, searched_index);
 		if (search_queue.isEmpty()){break;}
 		cur_cell = search_queue.pop();
 	}
-	if (cur_cell == goal_cell){return_value = cur_cell;}
+
+	if (cur_cell == goal_cell){
+		return_value = cur_cell;
+		this->path_found = true;
+		this->showPath();
+	}
+
 	return return_value;
 }
-
-//std::optional<Cell*> Maze::bfs(){
-//
-//}
 
 
 void Maze::showPath(){
@@ -261,11 +285,13 @@ void Maze::showPath(){
 	 * does not change anything                                     *
 	 ****************************************************************/
 	DEBUG_MSG("In showPath");
+	if (!this->path_found){throw std::invalid_argument("No path to show");}
 	Cell* cur_cell = &this->getCell(goal.row,goal.col);
 	while (cur_cell->getParent() != nullptr){
 		DEBUG_MSG(std::string("Inside loop for: ") + posToString(cur_cell->getPosition()));
 		Contents cur_contents = cur_cell->getContents();
 		if (cur_contents != Contents::GOAL){
+			this->path_length += 1;
 			cur_cell->markOnPath();
 		}
 		cur_cell = cur_cell->getParent();
