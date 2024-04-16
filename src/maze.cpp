@@ -176,7 +176,7 @@ void Maze::pushSearchLocations(
 
 	searched_index[(*cell).toInt()] = true;
 	//None of these can be references because they're rvalues.
-	Position start_pos   = cell->getPosition();
+	Position start_pos = cell->getPosition();
 	Position west_pos  = Position(start_pos.row  , start_pos.col-1);
 	Position east_pos  = Position(start_pos.row  , start_pos.col+1);
 	Position north_pos = Position(start_pos.row-1, start_pos.col);

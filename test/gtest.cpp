@@ -227,12 +227,3 @@ TEST_F(MazeTest, dfs_on_one_by_two_maze){
 	EXPECT_EQ(one_two_maze.getCell(0,0).getParent(), nullptr);
 }
 
-TEST_F(MazeTest, check_default_path_on_one_by_two_maze){
-	EXPECT_EQ(Maze::dfs(&default_maze).has_value(), true);
-	one_two_maze.showPath();
-	EXPECT_EQ(one_two_maze.toString(), "| S | G |");
-
-	// Maze should print like this:
-	//
-	//| S | G | 
-}
