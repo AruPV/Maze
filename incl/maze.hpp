@@ -15,9 +15,6 @@ class Maze {
 		std::vector<Cell> grid;		//Vector allows size definition at runtime.
 		size_t            rows;
 		size_t            cols;
-		bool              path_found = false;
-		int               path_length;
-		int               push_count;
 		
 
 		// The queues and stacks are pointer instantiated because vectors cannot
@@ -36,8 +33,13 @@ class Maze {
 		);
 
 		void resetStats();
+		void updatePath();
 
 	public:
+
+		bool              path_found = false;
+		int               path_length;
+		int               push_count;
 
 		Maze(
 			Position 	start_pos           = Position(0,0),
@@ -56,8 +58,8 @@ class Maze {
 
 		// These are pointers instead of references because you cannot have 
 		// optional references in c++.
-		std::optional<Cell*> dfs();
-		std::optional<Cell*> bfs();
+		static std::optional<Cell*> dfs(Maze* maze);
+		static std::optional<Cell*> bfs(Maze* maze);
 
 		std::string toString();
 };

@@ -6,81 +6,118 @@
 #include "../incl/maze.hpp"
 #include <iostream>
 #include <chrono>
+#include <random>
+
+typedef std::chrono::duration<double> Duration;
+typedef std::chrono::microseconds us;
+int TRIALS = 10000;
+
+class Stats {
+	/*************************************************************************
+	 * Used to keep track of the statistic for a particular benchmark        * 
+	 * being run                                                             *
+	 *************************************************************************/
+
+	public:
+		Duration total_duration =  Duration::zero();
+		int  total_pushes       = 0;
+		int  total_path_length  = 0;
+		int  unreachable_count  = 0;
+
+		void print(){
+			auto average_duration = total_duration/TRIALS;
+			std::cout
+				<< "Average Duration    : "
+				//Casting this leads to inaccuracy.
+				<< std::chrono::duration_cast<us>(average_duration).count()
+				<< "ms"
+				<< "\n"
+				<< "Average Pushes      : "
+				<< total_pushes/TRIALS
+				<< "\n"
+				<< "Average Path Length : "
+				<< total_path_length/(TRIALS - unreachable_count)
+				<< "\n";
+		}
+
+		void update(Maze maze, Duration duration){
+			if (maze.path_found){
+				total_duration    += duration;
+				total_pushes      += maze.push_count;
+				total_path_length += maze.path_length;
+			} else {
+				unreachable_count += 1;
+			}
+		}
+};
+
+
+void benchmarkAlgorithm(std::optional<Cell*> (*function)(Maze*), int rows, int cols){;
+	/*************************************************************************
+	 * Benchmarks a path-finding algorithm. The function is to be passed as  *
+	 * a pointer and must be a static member function (or a non-member       *
+	 * function),                                                            *
+	 *************************************************************************/
+
+	Stats stats;
+
+	for (int i = 0; i<TRIALS; i++){
+		std::mt19937 rng(i);
+
+		int start_row = ((i * rng()) % (rows-1)); 		
+		int   end_row = ((i * rng()) % (rows-1)); 		
+		int start_col = ((i * rng()) % (rows-1)); 		
+		int   end_col = ((i * rng()) % (rows-1)); 		
+
+		if (start_row == end_row){start_row = (start_row + 1) % (rows-1);}
+		if (start_col == end_col){start_col = (start_col + 1) % (cols-1);}
+
+		Position start_pos(start_row,start_col);
+		Position   end_pos(  end_row,  end_col);
+
+		Maze maze(start_pos, end_pos, rows, cols, i, .2);
+
+		const auto start       = std::chrono::steady_clock::now();
+		(function)(&maze);
+		const auto end         = std::chrono::steady_clock::now();
+		const auto it_duration = end-start;
+
+		stats.update(maze, it_duration);
+	}
+	stats.print();
+}
+
 
 int main(){
 
-	typedef std::chrono::microseconds us;
-	std::chrono::duration total_duration = std::chrono::duration<double>::zero();
-	int trials = 500;
-	// Using scopes here to help avoid the program taking up a lot of memory
-	// and also to keep the namespace clean.
-
 	std::cout << "Average maze instantiation time in microseconds: "; {
-		const auto start = std::chrono::steady_clock::now();
-		for (int i = 0; i<trials; i++){
-			Maze maze(Position(5,5), Position (13,12), 20, 20, 42, .2);
+
+		auto total_duration    = std::chrono::duration<double>::zero();
+		const auto start       = std::chrono::steady_clock::now();
+
+		for (int i = 0; i<TRIALS; i++){
+			Maze maze(Position(5,5), Position (13,12), 20, 20, i, .2);
 		}
-		const auto end = std::chrono::steady_clock::now();
-		const std::chrono::duration<double> it_duration =  end-start;
-		total_duration = total_duration + it_duration;
-		auto average_duration = total_duration/trials;
-		// I think there is probably a way to do this that does not require a cast.
+
+		const auto end         = std::chrono::steady_clock::now();
+		const auto it_duration =  end-start;
+
+		total_duration += it_duration;
+
+		auto average_duration = total_duration/TRIALS;
 		std::cout << std::chrono::duration_cast<us>(average_duration).count() << "\n";
 	}
 
-	std::cout << "Average DFS time in microseconds for a 20x20 maze: ";{
-		for (int i = 0; i<trials; i++){
-			Maze maze(Position(5,5), Position (13,12), 20, 20, 42, .2);
-			const auto start = std::chrono::steady_clock::now();
-			maze.dfs();
-			const auto end = std::chrono::steady_clock::now();
-			const std::chrono::duration<double> it_duration =  end-start;
-			total_duration = total_duration + it_duration;
-		}
-		auto average_duration = total_duration/trials;
-		std::cout << std::chrono::duration_cast<us>(average_duration).count() << "\n";
 
-	}
+	std::cout << "DFS performance on a 20x20 maze:" << "\n";
+	benchmarkAlgorithm(&(Maze::dfs), 20,20);
 
-	std::cout << "Average BFS time in microseconds for a 20x20 maze: ";{
-		for (int i = 0; i<trials; i++){
-			Maze maze(Position(5,5), Position (13,12), 20, 20, 42, .2);
-			const auto start = std::chrono::steady_clock::now();
-			maze.bfs();
-			const auto end = std::chrono::steady_clock::now();
-			const std::chrono::duration<double> it_duration =  end-start;
-			total_duration = total_duration + it_duration;
-		}
-		auto average_duration = total_duration/trials;
-		std::cout << std::chrono::duration_cast<us>(average_duration).count() << "\n";
+	std::cout << "BFS performance on a 20x20 maze:" << "\n";
+	benchmarkAlgorithm(&(Maze::bfs), 20,20);
 
-	}
-
-	std::cout << "Average DFS time in microseconds for a 50x50 maze: ";{
-		for (int i = 0; i<trials; i++){
-			Maze maze(Position(1,10), Position (13,12), 50, 50, 42, .2);
-			const auto start = std::chrono::steady_clock::now();
-			maze.dfs();
-			const auto end = std::chrono::steady_clock::now();
-			const std::chrono::duration<double> it_duration =  end-start;
-			total_duration = total_duration + it_duration;
-		}
-		auto average_duration = total_duration/trials;
-		std::cout << std::chrono::duration_cast<us>(average_duration).count() << "\n";
-
-	}
-
-	std::cout << "Average BFS time in microseconds for a 50x50 maze: ";{
-		for (int i = 0; i<trials; i++){
-			Maze maze(Position(5,5), Position (13,12), 50, 50, 42, .2);
-			const auto start = std::chrono::steady_clock::now();
-			maze.bfs();
-			const auto end = std::chrono::steady_clock::now();
-			const std::chrono::duration<double> it_duration =  end-start;
-			total_duration = total_duration + it_duration;
-		}
-		auto average_duration = total_duration/trials;
-		std::cout << std::chrono::duration_cast<us>(average_duration).count() << "\n";
-
-	}
+	std::cout << "DFS performance on a 50x50 maze:" << "\n";
+	benchmarkAlgorithm(&(Maze::dfs), 50,50);
+	
+	std::cout << "BFS performance on a 50x50 maze:" << "\n";
+	benchmarkAlgorithm(&(Maze::bfs), 50,50);
 }

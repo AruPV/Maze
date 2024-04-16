@@ -219,73 +219,12 @@ void Maze::resetStats(){
 	this->path_found  = false;
 }
 
-std::optional<Cell*> Maze::dfs(){
-	/*****************************************************************
-	 * Performs a Depth-first-search on the maze to find the goal    *
-	 * from the start.                                               *
-	 *****************************************************************/
-	std::optional<Cell*> return_value;
-	Stack<Cell*>         search_stack;
-	Cell*                cur_cell  = &this->getCell(start.row, start.col);
-	Cell*                goal_cell = &this->getCell(goal.row , goal.col);
-	std::map<int, bool> searched_index;
-
-	this->resetStats();
-
-	while (cur_cell != goal_cell){
-		DEBUG_MSG("In DFS Loop");
-		this->pushSearchLocations(cur_cell, search_stack, searched_index);
-		if (search_stack.isEmpty()){break;}
-		cur_cell = search_stack.pop();
-	}
-
-	if (cur_cell == goal_cell){
-		return_value = cur_cell;
-		this->path_found = true;
-		this->showPath();
-	}
-
-	return return_value;
-}
-
-std::optional<Cell*> Maze::bfs(){
-	/*****************************************************************
-	 * Performs a Breath-first-search on the maze to find the goal   *
-	 * from the start.                                               *
-	 *****************************************************************/
-	std::optional<Cell*> return_value;
-	Queue<Cell*>         search_queue;
-	Cell*                cur_cell  = &this->getCell(start.row, start.col);
-	Cell*                goal_cell = &this->getCell(goal.row , goal.col);
-	std::map<int, bool> searched_index;
-
-	this->resetStats();
-
-	while (cur_cell != goal_cell){
-		DEBUG_MSG("In DFS Loop");
-		this->pushSearchLocations(cur_cell, search_queue, searched_index);
-		if (search_queue.isEmpty()){break;}
-		cur_cell = search_queue.pop();
-	}
-
-	if (cur_cell == goal_cell){
-		return_value = cur_cell;
-		this->path_found = true;
-		this->showPath();
-	}
-
-	return return_value;
-}
-
-
-void Maze::showPath(){
+void Maze::updatePath(){
 	/****************************************************************
 	 * Goes throught the path, from end to beginning, and marks the *
 	 * cells in path as such. If there is no path, then the method  *
 	 * does not change anything                                     *
 	 ****************************************************************/
-	DEBUG_MSG("In showPath");
-	if (!this->path_found){throw std::invalid_argument("No path to show");}
 	Cell* cur_cell = &this->getCell(goal.row,goal.col);
 	while (cur_cell->getParent() != nullptr){
 		DEBUG_MSG(std::string("Inside loop for: ") + posToString(cur_cell->getPosition()));
@@ -296,6 +235,73 @@ void Maze::showPath(){
 		}
 		cur_cell = cur_cell->getParent();
 	}
+}
+
+std::optional<Cell*> Maze::dfs(Maze* maze){
+	/*****************************************************************
+	 * Performs a Depth-first-search on the maze to find the goal    *
+	 * from the start.                                               *
+	 *****************************************************************/
+	std::optional<Cell*> return_value;
+	Stack<Cell*>         search_stack;
+	Cell*                cur_cell  = &maze->getCell(maze->start.row, maze->start.col);
+	Cell*                goal_cell = &maze->getCell(maze->goal.row , maze->goal.col);
+	std::map<int, bool> searched_index;
+
+	maze->resetStats();
+
+	while (cur_cell != goal_cell){
+		DEBUG_MSG("In DFS Loop");
+		maze->pushSearchLocations(cur_cell, search_stack, searched_index);
+		if (search_stack.isEmpty()){break;}
+		cur_cell = search_stack.pop();
+	}
+
+	if (cur_cell == goal_cell){
+		return_value = cur_cell;
+		maze->path_found = true;
+		maze->updatePath();
+	}
+
+	return return_value;
+}
+
+std::optional<Cell*> Maze::bfs(Maze* maze){
+	/*****************************************************************
+	 * Performs a Breath-first-search on the maze to find the goal   *
+	 * from the start.                                               *
+	 *****************************************************************/
+	std::optional<Cell*> return_value;
+	Queue<Cell*>         search_queue;
+	Cell*                cur_cell  = &maze->getCell(maze->start.row, maze->start.col);
+	Cell*                goal_cell = &maze->getCell(maze->goal.row , maze->goal.col);
+	std::map<int, bool> searched_index;
+
+	maze->resetStats();
+
+	while (cur_cell != goal_cell){
+		DEBUG_MSG("In DFS Loop");
+		maze->pushSearchLocations(cur_cell, search_queue, searched_index);
+		if (search_queue.isEmpty()){break;}
+		cur_cell = search_queue.pop();
+	}
+
+	if (cur_cell == goal_cell){
+		return_value = cur_cell;
+		maze->path_found = true;
+		maze->updatePath();
+	}
+
+	return return_value;
+}
+
+
+void Maze::showPath(){
+	/****************************************************************
+	 * Prints the map if there is a path, otherwise throws          *
+	 ****************************************************************/
+	DEBUG_MSG("In showPath");
+	if (!this->path_found){throw std::invalid_argument("No path to show");}
 	std::cout<< this->toString();
 
 }

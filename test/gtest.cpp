@@ -111,12 +111,12 @@ TEST_F(MazeTest, check_all_positions_on_default_maze){
 }
 
 TEST_F(MazeTest, dfs_on_default_maze){
-	EXPECT_EQ(default_maze.dfs().has_value(), true);
+	EXPECT_EQ(Maze::dfs(&default_maze).has_value(), true);
 	EXPECT_EQ(default_maze.getCell(0,0).getParent(), nullptr);
 }
 
 TEST_F(MazeTest, check_dfs_path_on_default_maze){
-	EXPECT_EQ(default_maze.dfs().has_value(), true);
+	EXPECT_EQ(Maze::dfs(&default_maze).has_value(), true);
 	default_maze.showPath();
 	EXPECT_EQ(default_maze.toString(), "| S | * | * | * |   |   | x | x |   |   |\n|   |   | x | * |   | x |   | x |   |   |\n| * | * | * | * | x |   |   |   |   |   |\n| * |   |   |   |   | * | * | * | * | * |\n| * | * | * | * | * | * | x |   | x | * |\n|   | x |   |   | x | x |   |   | * | * |\n|   |   |   |   | x |   | x |   | * |   |\n|   |   | x |   |   |   |   | x | * | * |\n|   |   |   |   |   |   |   |   | x | * |\n| x |   |   |   | x |   | x | x |   | G |");
 
@@ -137,12 +137,12 @@ TEST_F(MazeTest, check_dfs_path_on_default_maze){
 }
 
 TEST_F(MazeTest, bfs_on_default_maze){
-	EXPECT_EQ(default_maze.bfs().has_value(), true);
+	EXPECT_EQ(Maze::bfs(&default_maze).has_value(), true);
 	EXPECT_EQ(default_maze.getCell(0,0).getParent(), nullptr);
 }
 
 TEST_F(MazeTest, check_bfs_path_on_default_maze){
-	EXPECT_EQ(default_maze.bfs().has_value(), true);
+	EXPECT_EQ(Maze::bfs(&default_maze).has_value(), true);
 	default_maze.showPath();
 	EXPECT_EQ(default_maze.toString(), "| S |   |   |   |   |   | x | x |   |   |\n| * |   | x |   |   | x |   | x |   |   |\n| * |   |   |   | x |   |   |   |   |   |\n| * | * | * | * | * | * | * | * |   |   |\n|   |   |   |   |   |   | x | * | x |   |\n|   | x |   |   | x | x |   | * |   |   |\n|   |   |   |   | x |   | x | * | * |   |\n|   |   | x |   |   |   |   | x | * | * |\n|   |   |   |   |   |   |   |   | x | * |\n| x |   |   |   | x |   | x | x |   | G |");
 
@@ -223,12 +223,12 @@ TEST_F(MazeTest, check_all_positions_on_one_by_two_maze){
 }
 
 TEST_F(MazeTest, dfs_on_one_by_two_maze){
-	EXPECT_EQ(one_two_maze.dfs().has_value(), true);
+	EXPECT_EQ(Maze::dfs(&default_maze).has_value(), true);
 	EXPECT_EQ(one_two_maze.getCell(0,0).getParent(), nullptr);
 }
 
 TEST_F(MazeTest, check_default_path_on_one_by_two_maze){
-	EXPECT_EQ(one_two_maze.dfs().has_value(), true);
+	EXPECT_EQ(Maze::dfs(&default_maze).has_value(), true);
 	one_two_maze.showPath();
 	EXPECT_EQ(one_two_maze.toString(), "| S | G |");
 
