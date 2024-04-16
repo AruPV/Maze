@@ -1,4 +1,4 @@
-# LAB 5: Dynamic Arrays
+# LAB 5: DFS & BFS
 
 ***
 
