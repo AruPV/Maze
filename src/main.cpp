@@ -77,8 +77,8 @@ void benchmarkAlgorithm(
 		if (start_row == end_row){start_row = (start_row + 1) % (rows-1);}
 		if (start_col == end_col){start_col = (start_col + 1) % (cols-1);}
 
-		Position start_pos(start_row,start_col);
-		Position   end_pos(  end_row,  end_col);
+		Position start_pos(start_row, start_col);
+		Position end_pos(end_row, end_col);
 
 		Maze maze(start_pos, end_pos, rows, cols, i, proportion);
 
@@ -114,56 +114,64 @@ int main(){
 	}
 
 
-	std::cout << "Testing Performance on:"     << "\n";
-	std::cout << "  5x5 maze at:"              << "\n";
-	std::cout << "    .2 blocked proportion"   << "\n";
-
-	std::cout << "      DFS:"                  << "\n";
+	std::cout 
+		<< "Testing Performance on:"     << "\n"
+		<< "  5x5 maze at:"              << "\n"
+		<< "    .2 blocked proportion"   << "\n"
+		<< "      DFS:"                  << "\n";
 	benchmarkAlgorithm(&(Maze::dfs), 5, 5, .2);
 
-	std::cout << "      BFS:"                  << "\n";
+	std::cout 
+		<< "      BFS:"                  << "\n";
 	benchmarkAlgorithm(&(Maze::bfs), 5, 5, .2);
 
-	std::cout << "    .5 blocked proportion"   << "\n";
-
-	std::cout << "      DFS:"                  << "\n";
+	std::cout 
+		<< "    .5 blocked proportion"   << "\n"
+		<< "      DFS:"                  << "\n";
 	benchmarkAlgorithm(&(Maze::dfs), 5, 5, .5);
 
-	std::cout << "      BFS:"                  << "\n";
+	std::cout 
+		<< "      BFS:"                  << "\n";
 	benchmarkAlgorithm(&(Maze::bfs), 5, 5, .5);
 
-	std::cout << "  20x20 maze at:"            << "\n";
-	std::cout << "    .2 blocked proportion"   << "\n";
+	std::cout 
+		<< "  20x20 maze at:"            << "\n"
+		<< "    .2 blocked proportion"   << "\n";
 
-	std::cout << "      DFS:"                  << "\n";
+	std::cout 
+		<< "      DFS:"                  << "\n";
 	benchmarkAlgorithm(&(Maze::dfs), 20, 20, .2);
 
-	std::cout << "      BFS:"                  << "\n";
+	std::cout 
+		<< "      BFS:"                  << "\n";
 	benchmarkAlgorithm(&(Maze::bfs), 20, 20, .2);
 
-	std::cout << "    .5 blocked proportion"   << "\n";
-
-	std::cout << "      DFS:"                  << "\n";
+	std::cout 
+		<< "    .5 blocked proportion"   << "\n"
+		<< "      DFS:"                  << "\n";
 	benchmarkAlgorithm(&(Maze::dfs), 20, 20, .5);
 
-	std::cout << "      BFS:"                  << "\n";
+	std::cout 
+		<< "      BFS:"                  << "\n";
 	benchmarkAlgorithm(&(Maze::bfs), 20, 20, .5);
 
-	std::cout << "  50x50 maze at:"            << "\n";
-	std::cout << "    .2 blocked proportion"   << "\n";
-
-	std::cout << "      DFS:"                  << "\n";
+	std::cout 
+		<< "  50x50 maze at:"            << "\n"
+		<< "    .2 blocked proportion"   << "\n"
+		<< "      DFS:"                  << "\n";
 	benchmarkAlgorithm(&(Maze::dfs), 50, 50, .2);
 
-	std::cout << "      BFS:"                  << "\n";
+	std::cout 
+		<< "      BFS:"                  << "\n";
 	benchmarkAlgorithm(&(Maze::bfs), 50, 50, .2);
 
-	std::cout << "    .5 blocked proportion"   << "\n";
-
-	std::cout << "      DFS:"                  << "\n";
+	std::cout 
+		<< "    .5 blocked proportion"   << "\n"
+		<< "      DFS:"                  << "\n";
 	benchmarkAlgorithm(&(Maze::dfs), 50, 50, .5);
 
-	std::cout << "      BFS:"                  << "\n";
+	std::cout 
+		<< "      BFS:"                  << "\n";
 	benchmarkAlgorithm(&(Maze::bfs), 50, 50, .5);
 
 }
